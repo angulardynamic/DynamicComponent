@@ -11,6 +11,8 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Greenkeeper badge](https://badges.greenkeeper.io/gund/ng-dynamic-component.svg)](https://greenkeeper.io/)
 
+Version 3.x.x supports Angular 6 (`ng-dynamic-component@^3.0.0`)
+
 Version 2.x.x supports Angular 5 (`ng-dynamic-component@^2.0.0`)
 
 Version 1.x.x supports Angular 4 (`ng-dynamic-component@^1.0.0`)
@@ -83,6 +85,25 @@ class MyDynamicComponent1 {
 Here you can update your inputs (ex. `inputs.hello = 'WORLD'`) and they will trigger standard Angular's life-cycle hooks
 (of course you should consider which change detection strategy you are using).
 
+### Component Creation Events
+
+You can subscribe to component creation events, being passed a reference to the `ComponentRef`:
+
+```ts
+@Component({
+  selector: 'my-component',
+  template: `<ndc-dynamic [ndcDynamicComponent]="component"
+                          (ndcDynamicCreated)="componentCreated($event)"
+                          ></ndc-dynamic>`
+})
+class MyComponent {
+  component = MyDynamicComponent1;
+  componentCreated(compRef: ComponentRef<any>) {
+    // utilize compRef in some way ...
+  }
+}
+```
+
 ### Attributes
 
 **Since v2.2.0** you can now declaratively set attributes, as you would inputs, via `ndcDynamicAttributes`:
@@ -142,7 +163,7 @@ directive from `@angular/common` instead of `<ndc-dynamic>` and apply `inputs` a
 class MyComponent {
   component = MyDynamicComponent1;
   inputs = {...};
-  outputs = {...}
+  outputs = {...};
 }
 ```
 
@@ -158,7 +179,7 @@ Also you can use `ngComponentOutlet` with `*` syntax:
 class MyComponent {
   component = MyDynamicComponent1;
   inputs = {...};
-  outputs = {...}
+  outputs = {...};
 }
 ```
 

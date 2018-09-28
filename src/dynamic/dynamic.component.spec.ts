@@ -1,15 +1,15 @@
 import {
   Component,
+  ComponentRef,
   InjectionToken,
   Injector,
   NO_ERRORS_SCHEMA,
-  Provider,
   QueryList,
-  ReflectiveInjector,
   TemplateRef,
   Type,
   ViewChildren,
   ViewContainerRef,
+  StaticProvider,
 } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -26,6 +26,7 @@ describe('DynamicComponent', () => {
     let testTemplate = `<ndc-dynamic [ndcDynamicComponent]="component"
                                    [ndcDynamicInjector]="injector"
                                    [ndcDynamicProviders]="providers"
+                                   (ndcDynamicCreated)="createdComponent($event)"
                                    [ndcDynamicContent]="content"></ndc-dynamic>`;
     let fixture: ComponentFixture<TestComponent>, createComp = true;
 
@@ -58,6 +59,13 @@ describe('DynamicComponent', () => {
         expect(fixture.debugElement.children.length).toBe(2);
         expect(injectedElem).not.toBeNull();
         expect(injectedElem.componentInstance).toEqual(jasmine.any(InjectedComponent));
+    });
+
+    it('should emit event when component created', () => {
+        fixture.componentInstance.component = InjectedComponent;
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.comp.instance).toBeInstanceOf(InjectedComponent);
     });
 
     it('should clear view if [ndcDynamicComponent] becomes null', () => {
@@ -106,7 +114,7 @@ describe('DynamicComponent', () => {
 
     it('should use [ndcDynamicInjector] if provided', () => {
         fixture.componentInstance.component = InjectedComponent;
-        fixture.componentInstance.injector = ReflectiveInjector.resolveAndCreate([
+        fixture.componentInstance.injector = Injector.create([
             { provide: token, useValue: tokenValue }
         ], fixture.componentRef.injector);
         fixture.detectChanges();
@@ -131,7 +139,7 @@ describe('DynamicComponent', () => {
         const anotherTokenValue = {};
 
         fixture.componentInstance.component = InjectedComponent;
-        fixture.componentInstance.injector = ReflectiveInjector.resolveAndCreate([
+        fixture.componentInstance.injector = Injector.create([
             { provide: token, useValue: tokenValue }
         ], fixture.componentRef.injector);
         fixture.componentInstance.providers = [{ provide: anotherToken, useValue: anotherTokenValue }];
@@ -178,10 +186,16 @@ describe('DynamicComponent', () => {
 class TestComponent {
     component: Type<any>;
     injector: Injector;
-    providers: Provider[];
+    providers: StaticProvider[];
     content: any[][];
+
+    comp: ComponentRef<any>;
 
     @ViewChildren(TemplateRef) tplRefs: QueryList<TemplateRef<any>>;
 
     constructor(public vcRef: ViewContainerRef) { }
+
+    createdComponent(comp: ComponentRef<any>) {
+        this.comp = comp;
+    }
 }
